@@ -1,8 +1,8 @@
 # ============================================================================
 # Welcome-Rishikesh.ps1
 #
-# Run from GitHub:
-# iex (iwr 'https://raw.githubusercontent.com/YOUR_USERNAME/REPO_NAME/main/Welcome-Rishikesh.ps1').Content
+# Run
+# iex (iwr 'https://rishikesh.dk/welcome.txt').Content
 # ============================================================================
 
 function Write-Typewriter {
@@ -47,7 +47,7 @@ Write-Host ""
 $headerLines = @(
     "  ╔══════════════════════════════════════════════════════════════════════════╗",
     "  ║                                                                          ║",
-    "  ║          >>> INITIALIZING SECURE TERMINAL <<<                           ║",
+    "  ║          >>> INITIALIZING SECURE TERMINAL <<<                            ║",
     "  ║                                                                          ║",
     "  ╚══════════════════════════════════════════════════════════════════════════╝"
 )
@@ -110,3 +110,93 @@ Write-Host "  [✓] Authentication successful" -ForegroundColor Green
 Start-Sleep -Milliseconds 150
 Write-Host "  [✓] ALL SYSTEMS OPERATIONAL" -ForegroundColor Green
 Write-Host ""
+
+# Menu
+Write-Host "  ╭─────────────────────────────────────────╮" -ForegroundColor DarkCyan
+Write-Host "  │     WHAT WOULD YOU LIKE TO DO?          │" -ForegroundColor DarkCyan
+Write-Host "  │                                         │" -ForegroundColor DarkCyan
+Write-Host "  │  [1] " -ForegroundColor DarkCyan -NoNewline
+Write-Host "Launch Chris Titus WinUtil" -ForegroundColor White -NoNewline
+Write-Host "          │" -ForegroundColor DarkCyan
+Write-Host "  │  [2] " -ForegroundColor DarkCyan -NoNewline
+Write-Host "HW Monitor (HWiNFO portable)" -ForegroundColor White -NoNewline
+Write-Host "    │" -ForegroundColor DarkCyan
+Write-Host "  │  [3] " -ForegroundColor DarkCyan -NoNewline
+Write-Host "DNS Ping Tester" -ForegroundColor White -NoNewline
+Write-Host "                  │" -ForegroundColor DarkCyan
+Write-Host "  │  [4] " -ForegroundColor DarkCyan -NoNewline
+Write-Host "Speed Test (Speedtest CLI)" -ForegroundColor White -NoNewline
+Write-Host "        │" -ForegroundColor DarkCyan
+Write-Host "  │  [5] " -ForegroundColor DarkCyan -NoNewline
+Write-Host "Exit" -ForegroundColor White -NoNewline
+Write-Host "                              │" -ForegroundColor DarkCyan
+Write-Host "  │                                         │" -ForegroundColor DarkCyan
+Write-Host "  ╰─────────────────────────────────────────╯" -ForegroundColor DarkCyan
+Write-Host ""
+$running = $true
+while ($running) {
+    Write-Host "  Choose " -ForegroundColor DarkGray -NoNewline
+    Write-Host "[1-5]" -ForegroundColor Cyan -NoNewline
+    Write-Host ": " -ForegroundColor DarkGray -NoNewline
+    $choice = Read-Host
+
+    switch ($choice) {
+        "1" {
+            Write-Host ""
+            Write-Host "  Launching Chris Titus WinUtil..." -ForegroundColor Cyan
+            Start-Sleep -Milliseconds 500
+            iex ([System.Text.Encoding]::UTF8.GetString((iwr -UseBasicParsing 'https://christitus.com/win').Content))
+        }
+        "2" {
+            Write-Host ""
+            Write-Host "  Installing/launching HWMonitor via winget..." -ForegroundColor Cyan
+            winget install --id CPUID.HWMonitor -e --silent
+        }
+        "3" {
+            Write-Host ""
+            Write-Host "  Launching DNS Ping Tester (requires admin)..." -ForegroundColor Cyan
+            Start-Sleep -Milliseconds 300
+            $script = (iwr -UseBasicParsing 'https://raw.githubusercontent.com/casual-coderr/Ping-Tester/refs/heads/master/command.ps1').Content
+            $tmpFile = "$env:TEMP\dns_ping_tester.ps1"
+            [System.IO.File]::WriteAllText($tmpFile, $script)
+            Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$tmpFile`"" -Verb RunAs
+        }
+        "4" {
+            Write-Host ""
+            Write-Host "  Running Speed Test..." -ForegroundColor Cyan
+            Start-Sleep -Milliseconds 300
+            $stDir = "$env:TEMP\speedtest-cli"
+            $stExe = "$stDir\speedtest.exe"
+            if (-not (Test-Path $stExe)) {
+                Write-Host "  Downloading Speedtest CLI..." -ForegroundColor DarkGray
+                $zipPath = "$env:TEMP\speedtest.zip"
+                Invoke-WebRequest -Uri "https://install.speedtest.net/app/cli/ookla-speedtest-1.2.0-win64.zip" -OutFile $zipPath -UseBasicParsing
+                Expand-Archive -Path $zipPath -DestinationPath $stDir -Force
+                Remove-Item $zipPath -Force
+            }
+            & $stExe
+        }
+        default {
+            Write-Host ""
+            Write-Host "  Goodbye, Mr. Rishi." -ForegroundColor DarkGray
+            Write-Host ""
+            $running = $false
+        }
+    }
+
+    if ($running) {
+        Write-Host ""
+        Write-Host "  Return to menu? " -ForegroundColor DarkGray -NoNewline
+        Write-Host "[Y/N]" -ForegroundColor Cyan -NoNewline
+        Write-Host ": " -ForegroundColor DarkGray -NoNewline
+        $again = Read-Host
+        if ($again -notmatch '^[Yy]$') {
+            Write-Host ""
+            Write-Host "  Goodbye, Mr. Rishi." -ForegroundColor DarkGray
+            Write-Host ""
+            $running = $false
+        } else {
+            Write-Host ""
+        }
+    }
+}
